@@ -1,0 +1,15 @@
+package ma.enset.springkafkastreams.web;
+
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class WebController {
+
+    @GetMapping("/stats")
+    public String satats(){
+        return "stats";
+    }
+
+}

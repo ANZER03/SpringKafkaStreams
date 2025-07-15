@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques des Clics par Utilisateur</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Statistiques des Clics par Utilisateur</h1>
+    <p>Les données sont mises à jour automatiquement toutes les 2 secondes.</p>
+    <table>
+        <thead>
+        <tr>
+            <th>ID Utilisateur</th>
+            <th>Nombre de Clics</th>
+        </tr>
+        </thead>
+        <tbody id="user-stats-body">
+        <!-- Les lignes de données seront insérées ici par JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    async function fetchUserStats() {
+        try {
+            const response = await fetch('/clicks/count/by-user');
+            if (!response.ok) {
+                console.error("Erreur API: ", response.status);
+                return;
+            }
+            const data = await response.json();
+            const tableBody = document.getElementById('user-stats-body');
+            tableBody.innerHTML = '';
+
+            const sortedUsers = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+            if (sortedUsers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2">En attente de clics...</td></tr>';
+            } else {
+                for (const [userId, count] of sortedUsers) {
+                    const row = `<tr><td>${userId}</td><td>${count}</td></tr>`;
+                    tableBody.innerHTML += row;
+                }
+            }
+        } catch (error) {
+            console.error("Impossible de joindre le serveur :", error);
+            document.getElementById('user-stats-body').innerHTML = '<tr><td colspan="2" style="color:red;">Erreur de connexion au serveur API.</td></tr>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUserStats);
+    setInterval(fetchUserStats, 2000);
+</script>
+</body>
+</html>
